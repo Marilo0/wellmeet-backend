@@ -2,20 +2,21 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copy everything and restore
-COPY . .
-RUN dotnet restore
+# Copy csproj first for caching
+COPY Wellmeet/Wellmeet.csproj Wellmeet/
+RUN dotnet restore "Wellmeet/Wellmeet.csproj"
 
-# Publish the API project
-RUN dotnet publish WellmeetApi/Wellmeet.csproj -c Release -o /app/publish
+# Copy the rest
+COPY . .
+
+# Publish
+RUN dotnet publish "Wellmeet/Wellmeet.csproj" -c Release -o /app/publish
 
 # ---------- Runtime stage ----------
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
-
 COPY --from=build /app/publish .
 
-# Render uses PORT env var
 ENV ASPNETCORE_URLS=http://0.0.0.0:${PORT}
 EXPOSE 8080
 
