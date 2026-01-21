@@ -168,7 +168,11 @@ namespace Wellmeet
             }
 
 
-            // Configure the HTTP request pipeline. 
+            // Configure the HTTP request pipeline.
+
+            // Logs every HTTP request + status code + duration
+            app.UseSerilogRequestLogging();
+
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
