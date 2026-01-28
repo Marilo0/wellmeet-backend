@@ -9,12 +9,9 @@ namespace Wellmeet.Controllers
     [Route("api/auth")]
     public class AuthController : BaseController
     {
-        private readonly IJwtService _jwtService;
-
-        public AuthController(IApplicationService applicationService, IJwtService jwtService)
+        public AuthController(IApplicationService applicationService)
             : base(applicationService)
         {
-            _jwtService = jwtService;
         }
 
         // POST: /api/auth/register
@@ -47,22 +44,8 @@ namespace Wellmeet.Controllers
         [HttpPost("login")]
         public async Task<ActionResult<JwtTokenDTO>> Login([FromBody] UserLoginDTO dto)
         {
-            var user = await ApplicationService.UserService.VerifyAndGetUserAsync(dto);
-
-            var token = _jwtService.CreateToken(
-                user.Id,
-                user.Username,
-                user.Email,
-                user.UserRole
-            );
-
-            return Ok(new JwtTokenDTO
-            {
-                Token = token,
-                Username = user.Username,
-                Role = user.UserRole.ToString(),
-                ExpiresAt = DateTime.UtcNow.AddHours(4)
-            });
+            var tokenDto = await ApplicationService.UserService.LoginAsync(dto);
+            return Ok(tokenDto);
         }
     }
 }
