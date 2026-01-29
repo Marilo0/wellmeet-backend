@@ -60,7 +60,7 @@ namespace Wellmeet.Services.Interfaces
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex,"Unexpected error while verifying credentials for {Username}", dto.Username
+                _logger.LogError(ex, "Unexpected error while verifying credentials for {Username}", dto.Username
                 );
                 throw new ServerException("Server", "Unexpected authentication error.");
             }
