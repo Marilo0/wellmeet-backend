@@ -28,7 +28,7 @@ namespace Wellmeet.Services.Interfaces
            
         }
 
-        //VerifyAndGetUser ------------------------------WILL be needed but with JWT create METHOD
+        //VerifyAndGetUser ----------------------------------------
         public async Task<User> VerifyAndGetUserAsync(UserLoginDTO dto)
         {
             User? user = null;
@@ -52,13 +52,16 @@ namespace Wellmeet.Services.Interfaces
 
                
             }
-            catch (EntityNotAuthorizedException)
+            catch (EntityNotAuthorizedException ex)
             {
-                throw; // handled by middleware
+                _logger.LogWarning(  ex, "Authentication failed for username {Username}", dto.Username
+                );
+                throw;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unexpected error while verifying credentials for {Username}", dto.Username);
+                _logger.LogError(ex,"Unexpected error while verifying credentials for {Username}", dto.Username
+                );
                 throw new ServerException("Server", "Unexpected authentication error.");
             }
 
@@ -86,7 +89,7 @@ namespace Wellmeet.Services.Interfaces
             };
         }
 
-        // REGISTER --------------------------------------------CHANDGED VERSION WITH LOGS
+        // REGISTER -------------------------------------------
         public async Task<UserReadOnlyDTO> RegisterAsync(UserRegisterDTO dto)
         {
             if (dto is null)
@@ -110,8 +113,7 @@ namespace Wellmeet.Services.Interfaces
                     _logger.LogWarning("Registration failed: Email {Email} already exists", dto.Email);
                     throw new EntityAlreadyExistsException("User", $"Email '{dto.Email}' already exists.");
                 }
-
-                // Map DTO → Entity
+                //map
                 var newUser = _mapper.Map<User>(dto);
 
                 // Hash password
@@ -142,7 +144,7 @@ namespace Wellmeet.Services.Interfaces
         }
        
 
-        //GET BY ID------------------------------
+        //GET BY ID-------------------------------------------
         public async Task<UserReadOnlyDTO> GetByIdAsync(int id)
         {
             User? user = null;
@@ -218,7 +220,6 @@ namespace Wellmeet.Services.Interfaces
         }
 
         // PAGINATION ----------------------------------------------
-
         public async Task<PaginatedResult<UserReadOnlyDTO>> GetPaginatedAsync(
             int pageNumber, int pageSize, UserFiltersDTO filters)
         {
@@ -234,118 +235,6 @@ namespace Wellmeet.Services.Interfaces
                 PageSize = result.PageSize
             };
         }
-
-
-        // DASHBOARD ---------------------------------------------- do i need dashboard in user service?
-
-        //public async Task<DashboardDTO> GetDashboardAsync(int userId)
-        //{
-        //    var created = await _uow.ActivityRepository.GetActivitiesAsync(
-        //        1, int.MaxValue, PredicateBuilder.CreatedByUser(userId));
-
-        //    var joined = await _uow.ActivityParticipantRepository.GetActivitiesByUserAsync(userId);
-
-        //    return new DashboardDTO
-        //    {
-        //        CreatedActivities = _mapper.Map<List<ActivityReadOnlyDTO>>(created.Data),
-        //        JoinedActivities = _mapper.Map<List<ActivityParticipantReadOnlyDTO>>(joined)
-        //    };
-        //}
-
-
-        //OLD VERSION OF REGISTER------------------------------
-
-        //if (await _uow.UserRepository.GetUserByUsernameAsync(dto.Username!) is not null)
-        //    throw new EntityAlreadyExistsException("User", "Username already exists.");
-
-        //if (await _uow.UserRepository.GetUserByEmailAsync(dto.Email!) is not null)
-        //    throw new EntityAlreadyExistsException("User", "Email already exists.");
-
-        //var user = _mapper.Map<User>(dto);
-
-
-        //user.Password = EncryptionUtil.Encrypt(dto.Password!);
-
-        //user.InsertedAt = DateTime.UtcNow;
-
-        //await _uow.UserRepository.AddAsync(user);
-        //await _uow.SaveAsync();
-
-        //logger.LogInformation("User registered successfully: {Username}", user.Username);
-
-        //return _mapper.Map<UserReadOnlyDTO>(user);
-
-
-        // GET BY ID OLD--------------------------------------------
-        //public async Task<UserReadOnlyDTO> GetByIdAsync(int id)
-        //{
-        //    var user = await _uow.UserRepository.GetAsync(id)
-        //        ?? throw new EntityNotFoundException("User", "User not found.");
-
-        //    return _mapper.Map<UserReadOnlyDTO>(user);
-        //}
-
-        // UPDATE OLD ----------------------------------------------
-        //public async Task<UserReadOnlyDTO> UpdateAsync(int id, UserUpdateDTO dto)
-        //{
-        //    var user = await _uow.UserRepository.GetAsync(id)
-        //        ?? throw new EntityNotFoundException("User", "User not found.");   ///wrong
-
-        //    _mapper.Map(dto, user);
-        //    user.ModifiedAt = DateTime.UtcNow;
-
-        //    await _uow.UserRepository.UpdateAsync(user);
-        //    await _uow.SaveAsync();
-
-        //    return _mapper.Map<UserReadOnlyDTO>(user);
-        //}
-
-        // DELETE OLD----------------------------------------------
-        //public async Task<bool> DeleteAsync(int id)
-        //{
-        //    var deleted = await _uow.UserRepository.DeleteAsync(id);
-
-        //    if (!deleted)
-        //        throw new EntityNotFoundException("User", "User not found.");
-
-        //    await _uow.SaveAsync();
-        //    return true;
-        //}
-
-        // PAGINATION WITHOUT Map() -----------------------------
-        //public async Task<PaginatedResult<UserReadOnlyDTO>> GetPaginatedAsync(
-        //    int pageNumber, int pageSize, UserFiltersDTO filters)
-        //{
-        //    var predicates = PredicateBuilder.BuildUserPredicates(filters);
-
-        //    var result = await _uow.UserRepository.GetUsersAsync(
-        //        pageNumber, pageSize, predicates);
-
-        //    var dtoList = _mapper.Map<List<UserReadOnlyDTO>>(result.Data);
-
-        //    return new PaginatedResult<UserReadOnlyDTO>
-        //    {
-        //        Data = dtoList,
-        //        TotalRecords = result.TotalRecords,
-        //        PageNumber = result.PageNumber,
-        //        PageSize = result.PageSize
-        //    };
-        //}
-
-        // DASHBOARD (uses Data instead of Items) ----------------
-        //public async Task<DashboardDTO> GetDashboardAsync(int userId)
-        //{
-        //    var created = await _uow.ActivityRepository.GetActivitiesAsync(
-        //        1, int.MaxValue,
-        //        PredicateBuilder.CreatedByUser(userId));
-
-        //    var joined = await _uow.ActivityParticipantRepository.GetActivitiesByUserAsync(userId);
-
-        //    return new DashboardDTO
-        //    {
-        //        CreatedActivities = _mapper.Map<List<ActivityReadOnlyDTO>>(created.Data),
-        //        JoinedActivities = _mapper.Map<List<ActivityParticipantReadOnlyDTO>>(joined)
-        //    };
-        //}
+      
     }
 }
