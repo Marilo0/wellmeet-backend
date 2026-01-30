@@ -174,7 +174,9 @@ namespace Wellmeet
             // Logs every HTTP request + status code + duration
             app.UseSerilogRequestLogging();
 
-            if (app.Environment.IsDevelopment())
+            var enableSwagger = app.Environment.IsDevelopment()
+                || builder.Configuration.GetValue<bool>("Swagger:Enable");
+            if (enableSwagger)
             {
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Wellmeet API v1"));
