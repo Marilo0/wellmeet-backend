@@ -2,6 +2,8 @@
 
 Backend API for the Wellmeet application.
 
+## Overview
+WellMeet is a full-stack app where users authenticate with JWT, explore activities by category or location, create their own, and join or leave activities created by others. Backend uses full-layered architecture (Controllers, Services, Repositories, Domain) with authorization (Users/Admin), validation, and structured logging for maintainability. 
 ## Tech Stack
 - **Runtime:** .NET 8 (ASP.NET Core)
 - **ORM:** Entity Framework Core
