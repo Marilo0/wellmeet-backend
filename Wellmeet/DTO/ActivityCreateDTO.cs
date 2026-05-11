@@ -11,7 +11,7 @@ namespace Wellmeet.DTO
         public string? Title { get; set; }
 
         [Required(ErrorMessage = "The {0} field is required.")]
-        [StringLength(1000, ErrorMessage = "Description must not exceed 1000 characters.")]
+        [StringLength(500, ErrorMessage = "Description must not exceed 500 characters.")]
         public string? Description { get; set; }
 
         [Required(ErrorMessage = "The {0} field is required.")]
